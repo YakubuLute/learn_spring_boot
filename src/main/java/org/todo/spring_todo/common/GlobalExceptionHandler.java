@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.todo.spring_todo.todo.TodoNotFoundException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,6 +17,11 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(TodoNotFoundException.class)
+    public ProblemDetail handleNotFound(TodoNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 
     // Thrown when a @Valid request body breaks a rule (@NotBlank, @Size, ...).
     @ExceptionHandler(MethodArgumentNotValidException.class)

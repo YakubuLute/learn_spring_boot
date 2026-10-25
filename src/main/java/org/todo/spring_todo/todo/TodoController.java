@@ -2,49 +2,40 @@ package org.todo.spring_todo.todo;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
+/** SESSION 2 — Thin controller: read the request, call the service, return the result. */
 @RestController
-@RequestMapping("/api/todos")            // prefix for every route in this class
+@RequestMapping("/api/todos")
 public class TodoController {
 
-    // Temporary "database". Session 2 moves this out; Session 3 replaces it with a real DB.
-    private final Map<Long, Todo> todos = new ConcurrentHashMap<>();
-    private final AtomicLong nextId = new AtomicLong(1);
+    private final TodoService todoService;
 
-    @GetMapping                                           // GET /api/todos
+    public TodoController(TodoService todoService) {
+        this.todoService = todoService;
+    }
+
+    @GetMapping
     public List<Todo> list() {
-        return List.copyOf(todos.values());
+        return todoService.findAll();
     }
 
-    @GetMapping("/{id}")                                  // GET /api/todos/7
-    public ResponseEntity<Todo> get(@PathVariable Long id) {
-        Todo todo = todos.get(id);
-        if (todo == null) {
-            return ResponseEntity.notFound().build();     // 404
-        }
-        return ResponseEntity.ok(todo);                   // 200 + body
+    @GetMapping("/{id}")
+    public Todo get(@PathVariable Long id) {
+        return todoService.findById(id);
     }
 
-    @PostMapping                                          // POST /api/todos  {"title":"Buy milk"}
-    @ResponseStatus(HttpStatus.CREATED)                   // 201
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Todo create(@Valid @RequestBody CreateTodoRequest request) {
-        long id = nextId.getAndIncrement();
-        Todo todo = new Todo(id, request.title(), false);
-        todos.put(id, todo);
-        return todo;
+        return todoService.create(request);
     }
 
-    @DeleteMapping("/{id}")                               // DELETE /api/todos/7
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return todos.remove(id) != null
-                ? ResponseEntity.noContent().build()      // 204
-                : ResponseEntity.notFound().build();      // 404
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        todoService.delete(id);
     }
 }
