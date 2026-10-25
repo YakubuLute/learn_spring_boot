@@ -3,6 +3,7 @@ package org.todo.spring_todo.user;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.todo.spring_todo.ratelimit.RateLimited;
 
 import java.security.Principal;
 
@@ -16,9 +17,10 @@ public class AuthController {
         this.userService = userService;
     }
 
-    // Public (see SecurityConfig).
+    // Public (see SecurityConfig). Tightly rate-limited so bots can't mass-create accounts.
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    @RateLimited(requests = 3, perSeconds = 60)
     public UserResponse register(@Valid @RequestBody RegisterRequest request) {
         return UserResponse.from(userService.register(request));
     }

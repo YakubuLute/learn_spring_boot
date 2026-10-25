@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.todo.spring_todo.ratelimit.RateLimited;
 import org.todo.spring_todo.todo.dto.CreateTodoRequest;
 import org.todo.spring_todo.todo.dto.TodoResponse;
 import org.todo.spring_todo.todo.dto.UpdateTodoRequest;
@@ -19,6 +20,7 @@ import java.util.List;
  */
 @RestController                 // = @Controller + @ResponseBody: return values become JSON
 @RequestMapping("/api/todos")   // every route below starts with /api/todos
+@RateLimited(requests = 30, perSeconds = 60)   // SESSION 5: default for this controller
 public class TodoController {
 
     private final TodoService todoService;
@@ -53,6 +55,7 @@ public class TodoController {
 
     // POST /api/todos  {"title": "Buy milk"}
     @PostMapping
+    @RateLimited(requests = 5, perSeconds = 60)   // method-level beats class-level
     public ResponseEntity<TodoResponse> create(@Valid @RequestBody CreateTodoRequest request,
                                                Principal principal) {
         Todo saved = todoService.create(principal.getName(), request);
