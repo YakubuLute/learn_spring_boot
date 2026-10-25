@@ -1,0 +1,18 @@
+# SESSION 3 (part 2) — a real PostgreSQL database in Docker.
+#   docker compose up -d      start it
+#   docker compose down       stop it (data is kept in the volume)
+# Port 5433 on your machine -> 5432 in the container (avoids clashing with a local PostgreSQL).
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: tododb
+      POSTGRES_USER: todo
+      POSTGRES_PASSWORD: todo
+    ports:
+      - "5433:5432"
+    volumes:
+      - todo-data:/var/lib/postgresql/data
+
+volumes:
+  todo-data:
