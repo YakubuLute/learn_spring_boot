@@ -1,0 +1,48 @@
+# SESSION 6 — The schema is the CONTRACT between server and clients.
+# Clients can only ask for what is described here.
+# "!" means non-null: the server promises a value is always there.
+
+type Query {
+    "My todos. Pass completed: true/false to filter."
+    todos(completed: Boolean): [Todo!]!
+    "One of my todos by id."
+    todo(id: ID!): Todo
+    "The logged-in user."
+    me: User!
+}
+
+type Mutation {
+    createTodo(input: CreateTodoInput!): Todo!
+    toggleTodo(id: ID!): Todo!
+    deleteTodo(id: ID!): Boolean!
+}
+
+input CreateTodoInput {
+    title: String!
+    description: String
+    priority: Priority
+}
+
+enum Priority {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+type Todo {
+    id: ID!
+    title: String!
+    description: String
+    completed: Boolean!
+    priority: Priority!
+    createdAt: String!
+    owner: User!
+}
+
+# Notice there is no "password" field. It can never be queried.
+type User {
+    username: String!
+    role: String!
+    "Computed field — resolved by a @SchemaMapping method, not stored in the database."
+    todoCount: Int!
+}
