@@ -7,12 +7,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.todo.spring_todo.todo.TodoNotFoundException;
+import org.todo.spring_todo.user.UsernameTakenException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * SESSION 1 — One place that turns exceptions into clean HTTP error responses.
+ * Without it, a TodoNotFoundException would become an ugly 500 Internal Server Error.
  * ProblemDetail is the standard JSON error format (RFC 9457).
  */
 @RestControllerAdvice
@@ -21,6 +23,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TodoNotFoundException.class)
     public ProblemDetail handleNotFound(TodoNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(UsernameTakenException.class)
+    public ProblemDetail handleUsernameTaken(UsernameTakenException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     // Thrown when a @Valid request body breaks a rule (@NotBlank, @Size, ...).
@@ -34,4 +41,5 @@ public class GlobalExceptionHandler {
         problem.setProperty("errors", errors);
         return problem;
     }
+
 }

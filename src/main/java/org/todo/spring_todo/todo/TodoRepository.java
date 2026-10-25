@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * SESSION 3 — We only write an interface. Spring Data generates the implementation at startup.
@@ -13,20 +14,22 @@ import java.util.List;
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 
     // "Derived queries": Spring reads the method name and writes the SQL for you.
-    List<Todo> findAllByOrderByCreatedAtDesc();
+    // findBy + Owner.Username + OrderBy CreatedAt Desc
+    List<Todo> findByOwnerUsernameOrderByCreatedAtDesc(String username);
 
-    List<Todo> findByCompletedOrderByCreatedAtDesc(boolean completed);
+    List<Todo> findByOwnerUsernameAndCompletedOrderByCreatedAtDesc(String username, boolean completed);
 
-    List<Todo> findByTitleContainingIgnoreCase(String text);
+    Optional<Todo> findByIdAndOwnerUsername(Long id, String username);
 
-    long countByCompleted(boolean completed);
+    long countByOwnerUsername(String username);
 
     // When the method name would get silly, write JPQL yourself.
     // JPQL talks about classes and fields (Todo, t.title), not tables and columns.
     @Query("""
             select t from Todo t
-            where lower(t.title) like lower(concat('%', :text, '%'))
+            where t.owner.username = :username
+              and lower(t.title) like lower(concat('%', :text, '%'))
             order by t.createdAt desc
             """)
-    List<Todo> searchByTitle(@Param("text") String text);
+    List<Todo> searchByTitle(@Param("username") String username, @Param("text") String text);
 }
