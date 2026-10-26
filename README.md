@@ -16,6 +16,7 @@ Extras:
 
 - [Teaching playbook](docs/00-teaching-playbook.md): the teaching style used in every session. Read it before you teach.
 - [Annotations cheat sheet](docs/annotations-cheatsheet.md): every annotation used in the course on one page.
+- [Core concepts walkthrough](docs/core-concepts-walkthrough.md): Bean, IoC, DI, AOP and data access in one short lesson, tied to this codebase.
 
 > **Why this order?** Annotations and DI come first because every later topic (repositories,
 > security config, GraphQL controllers) is a bean that gets injected and is configured with
